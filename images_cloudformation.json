@@ -1,0 +1,2763 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS CloudFormation Sample Template used to create cloudformation stack for manheim images development",
+  "Parameters": {
+    "EnvironmentType": {
+      "Description": "Name of the environment where the resources going to run",
+      "Default": "Development",
+      "Type": "String"
+    },
+    "TagName": {
+      "Description": "Tagging name for all the resources",
+      "Type": "String"
+    },
+    "accesskey": {
+      "Description": "AWS Access Key",
+      "Type": "String"
+    },
+    "secretkey": {
+      "Description": "AWS Secret Access Key",
+      "Type": "String"
+    },
+    "RestServerImageId": {
+      "Description": "AMI ID for rest server",
+      "Type": "String"
+    },
+    "ImagingServerImageId": {
+      "Description": "AMI ID for imaging server",
+      "Type": "String"
+    },
+    "SWFDeciderServerImageId": {
+      "Description": "AMI ID for swf decider server",
+      "Type": "String"
+    },
+    "NotificationServerImageId": {
+      "Description": "AMI ID for swf notification server",
+      "Type": "String"
+    },
+    "SWFWorkersServerImageId": {
+      "Description": "AMI ID for swf workers server",
+      "Type": "String"
+    },
+    "keyname": {
+      "Description": "Security key for SSH access",
+      "Type": "String"
+    },
+    "swfserviceurl": {
+      "Description": "Region specific swfservice url: For ex: http://swf.us-east-1.amazonaws.com",
+      "Default": "http://swf.us-east-1.amazonaws.com",
+      "Type": "String"
+    }
+  },
+  "Mappings": {
+    "RestServer": {
+      "Common": {
+        "RestServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "RestServerMinSize": "1",
+        "RestServerMaxSize": "2",
+        "RestServerSecurityGroups": "sg-5c5ee133",
+        "RestServerSubnetId": "subnet-839074e2",
+        "RestServerAZ": "us-east-1c",
+        "RestServerInstancePort": "8080",
+        "RestServerApplicationPingPath": "/v1.0/",
+        "RestServerELBSecurityGroup": "sg-5c5ee133",
+        "RestServerELBSubnetId": "subnet-839074e2"
+      },
+      "QA": {
+        "RestServerMinSize": "1",
+        "RestServerMaxSize": "2",
+        "RestServerSecurityGroups": "sg-5c5ee133",
+        "RestServerSubnetId": "subnet-839074e2",
+        "RestServerAZ": "us-east-1c",
+        "RestServerInstancePort": "8080",
+        "RestServerApplicationPingPath": "/v1.0/",
+        "RestServerELBSecurityGroup": "sg-5c5ee133",
+        "RestServerELBSubnetId": "subnet-839074e2"
+      }
+    },
+    "ImagingServer": {
+      "Common": {
+        "ImagingServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "ImagingServerMinSize": "1",
+        "ImagingServerMaxSize": "2",
+        "ImagingServerSecurityGroups": "sg-5c5ee133",
+        "ImagingServerSubnetId": "subnet-839074e2",
+        "ImagingServerAZ": "us-east-1c",
+        "ImagingServerInstancePort": "8080",
+        "ImagingServerApplicationPingPath": "/",
+        "ImagingServerELBSecurityGroup": "sg-5c5ee133",
+        "ImagingServerELBSubnetId": "subnet-839074e2"
+      },
+      "QA": {
+        "ImagingServerMinSize": "1",
+        "ImagingServerMaxSize": "2",
+        "ImagingServerSecurityGroups": "sg-5c5ee133",
+        "ImagingServerSubnetId": "subnet-839074e2",
+        "ImagingServerAZ": "us-east-1c",
+        "ImagingServerInstancePort": "8080",
+        "ImagingServerApplicationPingPath": "/",
+        "ImagingServerELBSecurityGroup": "sg-5c5ee133",
+        "ImagingServerELBSubnetId": "subnet-839074e2"
+      }
+    },
+    "NotificationServer": {
+      "Common": {
+        "NotificationServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "NotificationServerMinSize": "1",
+        "NotificationServerMaxSize": "2",
+        "NotificationServerSecurityGroups": "sg-5c5ee133",
+        "NotificationServerSubnetId": "subnet-839074e2",
+        "NotificationServerAZ": "us-east-1c"
+      },
+      "QA": {
+        "NotificationServerMinSize": "1",
+        "NotificationServerMaxSize": "2",
+        "NotificationServerSecurityGroups": "sg-5c5ee133",
+        "NotificationServerSubnetId": "subnet-839074e2",
+        "NotificationServerAZ": "us-east-1c"
+      }
+    },
+    "SWFDeciderServer": {
+      "Common": {
+        "SWFDeciderServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "SWFDeciderServerMinSize": "1",
+        "SWFDeciderServerMaxSize": "2",
+        "SWFDeciderServerSecurityGroups": "sg-5c5ee133",
+        "SWFDeciderServerSubnetId": "subnet-839074e2",
+        "SWFDeciderServerAZ": "us-east-1c"
+      },
+      "QA": {
+        "SWFDeciderServerMinSize": "1",
+        "SWFDeciderServerMaxSize": "2",
+        "SWFDeciderServerSecurityGroups": "sg-5c5ee133",
+        "SWFDeciderServerSubnetId": "subnet-839074e2",
+        "SWFDeciderServerAZ": "us-east-1c"
+      }
+    },
+    "SWFHighWorkersServer": {
+      "Common": {
+        "SWFHighWorkersServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "SWFHighWorkersServerMinSize": "1",
+        "SWFHighWorkersServerMaxSize": "2",
+        "SWFHighWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFHighWorkersServerSubnetId": "subnet-839074e2",
+        "SWFHighWorkersServerAZ": "us-east-1c"
+      },
+      "QA": {
+        "SWFHighWorkersServerMinSize": "1",
+        "SWFHighWorkersServerMaxSize": "2",
+        "SWFHighWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFHighWorkersServerSubnetId": "subnet-839074e2",
+        "SWFHighWorkersServerAZ": "us-east-1c"
+      }
+    },
+    "SWFMediumWorkersServer": {
+      "Common": {
+        "SWFMediumWorkersServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "SWFMediumWorkersServerMinSize": "1",
+        "SWFMediumWorkersServerMaxSize": "2",
+        "SWFMediumWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFMediumWorkersServerSubnetId": "subnet-839074e2",
+        "SWFMediumWorkersServerAZ": "us-east-1c"
+      },
+      "QA": {
+        "SWFMediumWorkersServerMinSize": "1",
+        "SWFMediumWorkersServerMaxSize": "2",
+        "SWFMediumWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFMediumWorkersServerSubnetId": "subnet-839074e2",
+        "SWFMediumWorkersServerAZ": "us-east-1c"
+      }
+    },
+    "SWFLowWorkersServer": {
+      "Common": {
+        "SWFLowWorkersServerInstanceType": "m1.small"
+      },
+      "Development": {
+        "SWFLowWorkersServerMinSize": "1",
+        "SWFLowWorkersServerMaxSize": "2",
+        "SWFLowWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFLowWorkersServerSubnetId": "subnet-839074e2",
+        "SWFLowWorkersServerAZ": "us-east-1c"
+      },
+      "QA": {
+        "SWFLowWorkersServerMinSize": "1",
+        "SWFLowWorkersServerMaxSize": "2",
+        "SWFLowWorkersServerSecurityGroups": "sg-5c5ee133",
+        "SWFLowWorkersServerSubnetId": "subnet-839074e2",
+        "SWFLowWorkersServerAZ": "us-east-1c"
+      }
+    },
+    "Elasticache": {
+      "Common": {
+        "ElastiCacheNodeType": "cache.m1.small",
+        "ElastiCacheEngineType": "memcached"
+      },
+      "Development": {
+        "ElastiCacheSecurityGroup": "sg-5c5ee133",
+        "NumberOfElastiCacheNodes": "2",
+        "ElastiCacheSubnets": "subnet-839074e2"
+      },
+      "QA": {
+        "ElastiCacheSecurityGroup": "sg-5c5ee133",
+        "NumberOfElastiCacheNodes": "3",
+        "ElastiCacheSubnets": "subnet-839074e2"
+      }
+    }
+  },
+  "Resources": {
+    "RestServerELB": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "RestServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "RestServerELBSecurityGroup"
+            ]
+          }
+        ],
+        "Subnets": [
+          {
+            "Fn::FindInMap": [
+              "RestServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "RestServerELBSubnetId"
+            ]
+          }
+        ],
+		"Scheme": "internal",
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "InstancePort": {
+              "Fn::FindInMap": [
+                "RestServer",
+                {
+                  "Ref": "EnvironmentType"
+                },
+                "RestServerInstancePort"
+              ]
+            },
+            "Protocol": "HTTP"
+          }
+        ],
+        "HealthCheck": {
+          "Target": {
+            "Fn::Join": [
+              "",
+              [
+                "HTTP:",
+                {
+                  "Fn::FindInMap": [
+                    "RestServer",
+                    {
+                      "Ref": "EnvironmentType"
+                    },
+                    "RestServerInstancePort"
+                  ]
+                },
+                {
+                  "Fn::FindInMap": [
+                    "RestServer",
+                    {
+                      "Ref": "EnvironmentType"
+                    },
+                    "RestServerApplicationPingPath"
+                  ]
+                }
+              ]
+            ]
+          },
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "5",
+          "Interval": "30",		  
+          "Timeout": "25"
+        }
+      }
+    },
+    "RestServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "RestServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "RestServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "RestServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "RestServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "RestServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "RestServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "RestServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "RestServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "RestServerMaxSize"
+          ]
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "RestServerELB"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "RestServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "RestServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "RestServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "RestServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "RestServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "RestServer",
+            "Common",
+            "RestServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "RestServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r RestServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "RestServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "RestServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "RestServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "RestServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "RestServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "RestServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "RestServerMinSize"
+          ]
+        }
+      }
+    },
+    "RestServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "RestServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "RestServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "RestServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "RestServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "RestServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "RestServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "RestServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "RestServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "RestServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "ImagingServerELB": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "ImagingServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ImagingServerELBSecurityGroup"
+            ]
+          }
+        ],
+		"Scheme": "internal",
+        "Subnets": [
+          {
+            "Fn::FindInMap": [
+              "ImagingServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ImagingServerELBSubnetId"
+            ]
+          }
+        ],
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "InstancePort": {
+              "Fn::FindInMap": [
+                "ImagingServer",
+                {
+                  "Ref": "EnvironmentType"
+                },
+                "ImagingServerInstancePort"
+              ]
+            },
+            "Protocol": "HTTP"
+          }
+        ],
+        "HealthCheck": {
+          "Target": {
+            "Fn::Join": [
+              "",
+              [
+                "HTTP:",
+                {
+                  "Fn::FindInMap": [
+                    "ImagingServer",
+                    {
+                      "Ref": "EnvironmentType"
+                    },
+                    "ImagingServerInstancePort"
+                  ]
+                },
+                {
+                  "Fn::FindInMap": [
+                    "ImagingServer",
+                    {
+                      "Ref": "EnvironmentType"
+                    },
+                    "ImagingServerApplicationPingPath"
+                  ]
+                }
+              ]
+            ]
+          },
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "5",
+          "Interval": "30",		 
+          "Timeout": "25"
+        }
+      }
+    },
+    "ImagingServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "ImagingServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ImagingServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "ImagingServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ImagingServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "ImagingServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "ImagingServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "ImagingServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "ImagingServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "ImagingServerMaxSize"
+          ]
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "ImagingServerELB"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "ImagingServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "ImagingServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "ImagingServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "ImagingServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ImagingServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "ImagingServer",
+            "Common",
+            "ImagingServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "ImagingServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r ImagingServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "ImagingServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "ImagingServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "ImagingServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "ImagingServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "ImagingServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "ImagingServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "ImagingServerMinSize"
+          ]
+        }
+      }
+    },
+    "ImagingServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "ImagingServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "ImagingServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "ImagingServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "ImagingServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "ImagingServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "ImagingServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "ImagingServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "ImagingServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "ImagingServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "NotificationServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "NotificationServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "NotificationServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "NotificationServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "NotificationServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "NotificationServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "NotificationServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "NotificationServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "NotificationServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "NotificationServerMaxSize"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "NotificationServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "NotificationServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "NotificationServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "NotificationServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "NotificationServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "NotificationServer",
+            "Common",
+            "NotificationServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "NotificationServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r NotificationServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "NotificationServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "NotificationServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "NotificationServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "NotificationServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "NotificationServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "NotificationServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "NotificationServerMinSize"
+          ]
+        }
+      }
+    },
+    "NotificationServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "NotificationServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "NotificationServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "NotificationServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "NotificationServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "NotificationServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "NotificationServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "NotificationServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "NotificationServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "NotificationServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFDeciderServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "DependsOn": [
+        "SWFHighWorkersServerGroup",
+        "SWFMediumWorkersServerGroup",
+        "SWFLowWorkersServerGroup"
+      ],
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "SWFDeciderServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFDeciderServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "SWFDeciderServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFDeciderServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "SWFDeciderServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "SWFDeciderServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFDeciderServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "SWFDeciderServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFDeciderServerMaxSize"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "SWFDeciderServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "SWFDeciderServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "SWFDeciderServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "SWFDeciderServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFDeciderServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "SWFDeciderServer",
+            "Common",
+            "SWFDeciderServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "SWFDeciderServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r SWFDeciderServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "SWFDeciderServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "SWFDeciderServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "SWFDeciderServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "SWFDeciderServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "SWFDeciderServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "SWFDeciderServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFDeciderServerMinSize"
+          ]
+        }
+      }
+    },
+    "SWFDeciderServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFDeciderServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "SWFDeciderServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFDeciderServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "SWFDeciderServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "SWFDeciderServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFDeciderServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFDeciderServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "SWFDeciderServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFDeciderServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFHighWorkersServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "SWFHighWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFHighWorkersServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "SWFHighWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFHighWorkersServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "SWFHighWorkersServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "SWFHighWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFHighWorkersServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "SWFHighWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFHighWorkersServerMaxSize"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "SWFHighWorkersServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "SWFHighWorkersServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "SWFWorkersServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "SWFHighWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFHighWorkersServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "SWFHighWorkersServer",
+            "Common",
+            "SWFHighWorkersServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "SWFHighWorkersServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r SWFHighWorkersServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "SWFHighWorkersServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "SWFHighWorkersServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "SWFHighWorkersServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "SWFHighWorkersServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "SWFHighWorkersServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "SWFHighWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFHighWorkersServerMinSize"
+          ]
+        }
+      }
+    },
+    "SWFHighWorkersServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFHighWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "SWFHighWorkersServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFHighWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "SWFHighWorkersServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "SWFHighWorkersServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFHighWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFHighWorkersServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "SWFHighWorkersServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFHighWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFMediumWorkersServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "SWFMediumWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFMediumWorkersServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "SWFMediumWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFMediumWorkersServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "SWFMediumWorkersServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "SWFMediumWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFMediumWorkersServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "SWFMediumWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFMediumWorkersServerMaxSize"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "SWFMediumWorkersServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "SWFMediumWorkersServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "SWFWorkersServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "SWFMediumWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFMediumWorkersServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "SWFMediumWorkersServer",
+            "Common",
+            "SWFMediumWorkersServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "SWFMediumWorkersServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r SWFMediumWorkersServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "SWFMediumWorkersServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "SWFMediumWorkersServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "SWFMediumWorkersServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "SWFMediumWorkersServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "SWFMediumWorkersServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "SWFMediumWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFMediumWorkersServerMinSize"
+          ]
+        }
+      }
+    },
+    "SWFMediumWorkersServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFMediumWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "SWFMediumWorkersServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFMediumWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "SWFMediumWorkersServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "SWFMediumWorkersServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFMediumWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFMediumWorkersServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "SWFMediumWorkersServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFMediumWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFLowWorkersServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          {
+            "Fn::FindInMap": [
+              "SWFLowWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFLowWorkersServerAZ"
+            ]
+          }
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Fn::FindInMap": [
+              "SWFLowWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFLowWorkersServerSubnetId"
+            ]
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "SWFLowWorkersServerLaunchConfig"
+        },
+        "MinSize": {
+          "Fn::FindInMap": [
+            "SWFLowWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFLowWorkersServerMinSize"
+          ]
+        },
+        "MaxSize": {
+          "Fn::FindInMap": [
+            "SWFLowWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFLowWorkersServerMaxSize"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "TagName"
+                  },
+                  "SWFLowWorkersServerGroup"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "SWFLowWorkersServerLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/home/ec2-user/cloud-config.properties": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "S3.Bucket.Name=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "auction20_images-",
+                            {
+                              "Ref": "AWS::StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "S3.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "S3.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "ElasticacheConfigurationAddress=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Address"
+                        ]
+                      },
+                      "\n",
+                      "ElasticacheConfigurationPort=",
+                      {
+                        "Fn::GetAtt": [
+                          "ElastiCacheCluster",
+                          "ConfigurationEndpoint.Port"
+                        ]
+                      },
+                      "\n",
+                      "imageservingurl=",
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "scaler.",
+                            {
+                              "Ref": "AWS::StackName"
+                            },
+                            ".images.auction20.ove.local"
+                          ]
+                        ]
+                      },
+                      "\n",
+                      "domain=auction20_images",
+                      "\n",
+                      "AWS.Access.ID=",
+                      {
+                        "Ref": "accesskey"
+                      },
+                      "\n",
+                      "AWS.Secret.Key=",
+                      {
+                        "Ref": "secretkey"
+                      },
+                      "\n",
+                      "service.url=",
+                      {
+                        "Ref": "swfserviceurl"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "keyname"
+        },
+        "ImageId": {
+          "Ref": "SWFWorkersServerImageId"
+        },
+        "SecurityGroups": [
+          {
+            "Fn::FindInMap": [
+              "SWFLowWorkersServer",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "SWFLowWorkersServerSecurityGroups"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "SWFLowWorkersServer",
+            "Common",
+            "SWFLowWorkersServerInstanceType"
+          ]
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                {
+                  "Ref": "SWFLowWorkersServerWaitHandle"
+                },
+                "'\n",
+                "  exit 1\n",
+                "}\n",
+                "# Install packages\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r SWFLowWorkersServerLaunchConfig ",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " --access-key ",
+                {
+                  "Ref": "accesskey"
+                },
+                " --secret-key ",
+                {
+                  "Ref": "secretkey"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "chmod 655 /home/ec2-user/cloud-config.properties\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"All the bootstrapping process complete\" '",
+                {
+                  "Ref": "SWFLowWorkersServerWaitHandle"
+                },
+                "'\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "SWFLowWorkersServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "SWFLowWorkersServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "SWFLowWorkersServerGroup",
+      "Properties": {
+        "Handle": {
+          "Ref": "SWFLowWorkersServerWaitHandle"
+        },
+        "Timeout": "600",
+        "Count": {
+          "Fn::FindInMap": [
+            "SWFLowWorkersServer",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "SWFLowWorkersServerMinSize"
+          ]
+        }
+      }
+    },
+    "SWFLowWorkersServerScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFLowWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "SWFLowWorkersServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "SWFLowWorkersServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "SWFLowWorkersServerCPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "SWFLowWorkersServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFLowWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFLowWorkersServerCPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "SWFLowWorkersServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "SWFLowWorkersServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "ElastiCacheCluster": {
+      "Type": "AWS::ElastiCache::CacheCluster",
+      "Properties": {
+        "CacheSubnetGroupName": {
+          "Ref": "ElastiCacheSubnetGroup"
+        },
+        "CacheNodeType": {
+          "Fn::FindInMap": [
+            "Elasticache",
+            "Common",
+            "ElastiCacheNodeType"
+          ]
+        },
+        "VpcSecurityGroupIds": [
+          {
+            "Fn::FindInMap": [
+              "Elasticache",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ElastiCacheSecurityGroup"
+            ]
+          }
+        ],
+        "Engine": {
+          "Fn::FindInMap": [
+            "Elasticache",
+            "Common",
+            "ElastiCacheEngineType"
+          ]
+        },
+        "NumCacheNodes": {
+          "Fn::FindInMap": [
+            "Elasticache",
+            {
+              "Ref": "EnvironmentType"
+            },
+            "NumberOfElastiCacheNodes"
+          ]
+        }
+      }
+    },
+    "ElastiCacheSubnetGroup": {
+      "Type": "AWS::ElastiCache::SubnetGroup",
+      "Properties": {
+        "Description": "Subnets where the elastic cache nodes going to be launched",
+        "SubnetIds": [
+          {
+            "Fn::FindInMap": [
+              "Elasticache",
+              {
+                "Ref": "EnvironmentType"
+              },
+              "ElastiCacheSubnets"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "RestAPIEndPoint": {
+      "Description": "URL of the rest api Environment",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "RestServerELB",
+                "DNSName"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "ImagingAPIEndPoint": {
+      "Description": "URL of the imaging api  Environment",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "ImagingServerELB",
+                "DNSName"
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

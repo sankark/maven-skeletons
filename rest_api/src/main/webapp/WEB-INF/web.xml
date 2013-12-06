@@ -1,0 +1,53 @@
+<web-app version="3.0"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+            http://java.sun.com/xml/ns/javaee
+            http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+   <display-name>Restful Web Application</display-name>
+   <context-param>
+      <param-name>contextClass</param-name>
+      <param-value>
+         org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+      </param-value>
+   </context-param>
+   <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+         springconfig.RestApiContextConfiguration
+      </param-value>
+   </context-param>
+   <listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+   <listener>
+      <listener-class>
+         contextinit.Log4jInitializationListener
+      </listener-class>
+   </listener>
+  <servlet>
+  	<servlet-name>mvc-dispatcher</servlet-name>
+        <servlet-class>
+               org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+  </servlet>
+ 
+  <servlet-mapping>
+ 	<servlet-name>mvc-dispatcher</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+ 
+	<!-- Spring Security -->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>
+                  org.springframework.web.filter.DelegatingFilterProxy
+                </filter-class>
+	</filter>
+ 
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>
