@@ -1,5 +1,5 @@
 *.properties
-!*./resources/
+!.*/src/main/resources/
 .pom.xml
 .idea/*
 *.iml
