@@ -10,18 +10,18 @@ import java.util.Properties;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 @Configuration
-@ComponentScan("com.manheim.cloudimaging.common")
 public class RootContextConfiguration {
 
 	@Bean(name = "defaultResourceLoader")
@@ -30,22 +30,19 @@ public class RootContextConfiguration {
 	}
 
 	@Bean(name = "applicationConfig")
-	public Iterable<Properties> applicationConfig() {
-		defaultResourceLoader();
+	   public Config applicationConfig() {
+	      DefaultResourceLoader resourceLoader = defaultResourceLoader();
 
-		String environment = firstNonNull(sysProperty("system.environment"),
-				"test");
-		Iterable<Properties> properties = filter(
-				newArrayList(
-						loadProperties("classpath:conf/default.properties"),
-						loadProperties("classpath:conf/" + environment
-								+ ".properties")), Predicates.notNull());
-		if (Iterables.isEmpty(properties)) {
-			throw new FatalBeanException(
-					"Could not create config. No properties found.");
-		}
-		return properties;
-	}
+	      String environment = firstNonNull(sysProperty("system.environment"), "test");
+	      Iterable<Properties> properties = filter(newArrayList(
+	            loadProperties("classpath:conf/default.properties"),
+	            loadProperties("classpath:conf/" + environment + ".properties")),
+	            Predicates.notNull());
+	      if (Iterables.isEmpty(properties)) {
+	         throw new FatalBeanException("Could not create config. No properties found.");
+	      }
+	      return new MappedConfig(properties);
+	   }
 
 	private Properties loadProperties(String location) {
 		try {
@@ -72,23 +69,22 @@ public class RootContextConfiguration {
 	}
 
 	@Bean(name = "awsCredentials")
-	public AWSCredentials awsCredentials() {
-		/*
-		 * Config config = applicationConfig();
-		 * 
-		 * String swfAccessId =
-		 * config.getProperty(ConfigKeys.SWF_ACCESS_ID_KEY); String swfSecretKey
-		 * = config.getProperty(ConfigKeys.SWF_SECRET_KEY_KEY); return new
-		 * BasicAWSCredentials(swfAccessId, swfSecretKey);
-		 */
-		return null;
-	}
+	   public AWSCredentials awsCredentials() {
+	      Config config = applicationConfig();
+
+	      String swfAccessId = config.getProperty(ConfigKeys.AWS_ACCESS_ID_KEY);
+	      String swfSecretKey = config.getProperty(ConfigKeys.AWS_SECRET_KEY_KEY);
+	      return new BasicAWSCredentials(swfAccessId, swfSecretKey);
+	 }
 
 	@Bean(name = "amazonS3Client")
 	public AmazonS3Client amazonS3Client() {
 		return new AmazonS3Client(awsCredentials());
 	}
-
+	@Bean(name = "amazonEC2Client")
+	public AmazonEC2Client amazonEC2Client() {
+		return new AmazonEC2Client(awsCredentials());
+	}
 	@Bean(name = "simpleWorkflow")
 	public AmazonSimpleWorkflow amazonSimpleWorkflow() {
 		/*

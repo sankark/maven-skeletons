@@ -1,0 +1,10 @@
+*.properties
+.pom.xml
+.idea/*
+*.iml
+.settings
+.project
+.classpath
+target
+vendor/bundle
+Gemfile.lock
