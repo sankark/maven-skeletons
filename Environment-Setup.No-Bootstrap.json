@@ -1,0 +1,823 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "AWS CloudFormation Sample Template used to create cloudformation stack for manheim images development",
+
+  "Parameters" : {
+    "EnvironmentType" : {
+      "Description" : "Name of the environment where the resources going to run",
+	  "Default" : "Development",
+      "Type" : "String"
+    },
+	"TagName":{
+	  "Description" : "Tagging name for all the resources",
+	  "Type" : "String"
+	}
+  },  
+   "Mappings" : {
+		"RestServer" : {		
+			"Common" : {
+				"RestServerImageId":"ami-01623268",				
+				"RestServerInstanceType":"m1.small"
+			},
+			
+			"Development" :
+				{ 				
+				"RestServerMinSize" : "1",
+				"RestServerMaxSize" : "2",
+				"RestServerKeyName":"cogni",
+				"RestServerSecurityGroups":"sg-5c5ee133",				
+				"RestServerSubnetId":"subnet-839074e2",
+				"RestServerAZ":"us-east-1c",
+				"RestServerInstancePort" : "8080",
+				"RestServerApplicationPingPath" : "/", 
+				"RestServerELBSecurityGroup" : "sg-5c5ee133",
+				"RestServerELBSubnetId" : "subnet-bb9074da"
+			    },
+			"QA" :
+				{ 
+				"RestServerMinSize" : "1",
+				"RestServerMaxSize" : "2",
+				"RestServerKeyName":"cogni",				
+				"RestServerSecurityGroups":"sg-5c5ee133",				
+				"RestServerSubnetId":"subnet-839074e2",
+				"RestServerAZ":"us-east-1c",
+				"RestServerInstancePort" : "8080",
+				"RestServerApplicationPingPath" : "/", 
+				"RestServerELBSecurityGroup" : "sg-5c5ee133",
+				"RestServerELBSubnetId" : "subnet-bb9074da"
+			    }						
+		},
+		"ImagingServer" : {		
+		
+			"Common" : {
+				"ImagingServerImageId":"ami-01623268",				
+				"ImagingServerInstanceType":"m1.small"
+			},
+			
+			"Development" :
+				{ 				
+				"ImagingServerMinSize" : "1",
+				"ImagingServerMaxSize" : "2",
+				"ImagingServerKeyName":"cogni",
+				"ImagingServerSecurityGroups":"sg-5c5ee133",				
+				"ImagingServerSubnetId":"subnet-839074e2",
+				"ImagingServerAZ":"us-east-1c",
+				"ImagingServerInstancePort" : "8080",
+				"ImagingServerApplicationPingPath" : "/", 
+				"ImagingServerELBSecurityGroup" : "sg-5c5ee133",
+				"ImagingServerELBSubnetId" : "subnet-bb9074da"
+			    },
+			"QA" :
+				{ 
+				"ImagingServerMinSize" : "1",
+				"ImagingServerMaxSize" : "2",
+				"ImagingServerKeyName":"cogni",				
+				"ImagingServerSecurityGroups":"sg-5c5ee133",				
+				"ImagingServerSubnetId":"subnet-839074e2",
+				"ImagingServerAZ":"us-east-1c",
+				"ImagingServerInstancePort" : "8080",
+				"ImagingServerApplicationPingPath" : "/", 
+				"ImagingServerELBSecurityGroup" : "sg-5c5ee133",
+				"ImagingServerELBSubnetId" : "subnet-bb9074da"
+			    }					
+		},
+		"NotificationServer" : {		
+		
+			"Common" : {
+				"NotificationServerImageId":"ami-01623268",
+				"NotificationServerInstanceType":"m1.small"
+			},
+			
+			"Development" :
+				{ 				
+				"NotificationServerMinSize" : "1",
+				"NotificationServerMaxSize" : "2",
+				"NotificationServerKeyName":"cogni",				
+				"NotificationServerSecurityGroups":"sg-5c5ee133",				
+				"NotificationServerSubnetId":"subnet-839074e2",
+				"NotificationServerAZ":"us-east-1c"									
+			    },
+			"QA" :
+				{ 
+				"NotificationServerMinSize" : "1",
+				"NotificationServerMaxSize" : "2",
+				"NotificationServerKeyName":"cogni",				
+				"NotificationServerSecurityGroups":"sg-5c5ee133",				
+				"NotificationServerSubnetId":"subnet-839074e2",
+				"NotificationServerAZ":"us-east-1c"							
+			    }				
+		},
+		"SWFDeciderServer" : {
+
+			"Common" : {
+				"SWFDeciderServerImageId":"ami-01623268",				
+				"SWFDeciderServerInstanceType":"m1.small"
+			},
+			
+			"Development" :
+				{ 				
+				"SWFDeciderServerMinSize" : "1",
+				"SWFDeciderServerMaxSize" : "2",
+				"SWFDeciderServerKeyName":"cogni",
+				"SWFDeciderServerSecurityGroups":"sg-5c5ee133",				
+				"SWFDeciderServerSubnetId":"subnet-839074e2",
+				"SWFDeciderServerAZ":"us-east-1c"					
+			    },
+			"QA" :
+				{ 
+				"SWFDeciderServerMinSize" : "1",
+				"SWFDeciderServerMaxSize" : "2",
+				"SWFDeciderServerKeyName":"cogni",				
+				"SWFDeciderServerSecurityGroups":"sg-5c5ee133",				
+				"SWFDeciderServerSubnetId":"subnet-839074e2",
+				"SWFDeciderServerAZ":"us-east-1c"							
+			    }				
+		},
+		
+		"SWFHighWorkersServer" : {			
+			"Common" : {
+				"SWFHighWorkersServerImageId":"ami-01623268",				
+				"SWFHighWorkersServerInstanceType":"m1.small"
+			},		
+			"Development" :
+				{ 				
+				"SWFHighWorkersServerMinSize" : "1",
+				"SWFHighWorkersServerMaxSize" : "2",
+				"SWFHighWorkersServerKeyName":"cogni",			
+				"SWFHighWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFHighWorkersServerSubnetId":"subnet-839074e2",
+				"SWFHighWorkersServerAZ":"us-east-1c"									
+			    },
+			"QA" :
+				{ 
+				"SWFHighWorkersServerMinSize" : "1",
+				"SWFHighWorkersServerMaxSize" : "2",
+				"SWFHighWorkersServerKeyName":"cogni",				
+				"SWFHighWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFHighWorkersServerSubnetId":"subnet-839074e2",
+				"SWFHighWorkersServerAZ":"us-east-1c"						
+			    }				
+		},
+
+		"SWFMediumWorkersServer" : {			
+			"Common" : {
+				"SWFMediumWorkersServerImageId":"ami-01623268",				
+				"SWFMediumWorkersServerInstanceType":"m1.small"
+			},		
+			"Development" :
+				{ 				
+				"SWFMediumWorkersServerMinSize" : "1",
+				"SWFMediumWorkersServerMaxSize" : "2",
+				"SWFMediumWorkersServerKeyName":"cogni",			
+				"SWFMediumWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFMediumWorkersServerSubnetId":"subnet-839074e2",
+				"SWFMediumWorkersServerAZ":"us-east-1c"									
+			    },
+			"QA" :
+				{ 
+				"SWFMediumWorkersServerMinSize" : "1",
+				"SWFMediumWorkersServerMaxSize" : "2",
+				"SWFMediumWorkersServerKeyName":"cogni",				
+				"SWFMediumWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFMediumWorkersServerSubnetId":"subnet-839074e2",
+				"SWFMediumWorkersServerAZ":"us-east-1c"						
+			    }				
+		},
+
+		"SWFLowWorkersServer" : {			
+			"Common" : {
+				"SWFLowWorkersServerImageId":"ami-01623268",				
+				"SWFLowWorkersServerInstanceType":"m1.small"
+			},		
+			"Development" :
+				{ 				
+				"SWFLowWorkersServerMinSize" : "1",
+				"SWFLowWorkersServerMaxSize" : "2",
+				"SWFLowWorkersServerKeyName":"cogni",			
+				"SWFLowWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFLowWorkersServerSubnetId":"subnet-839074e2",
+				"SWFLowWorkersServerAZ":"us-east-1c"									
+			    },
+			"QA" :
+				{ 
+				"SWFLowWorkersServerMinSize" : "1",
+				"SWFLowWorkersServerMaxSize" : "2",
+				"SWFLowWorkersServerKeyName":"cogni",				
+				"SWFLowWorkersServerSecurityGroups":"sg-5c5ee133",				
+				"SWFLowWorkersServerSubnetId":"subnet-839074e2",
+				"SWFLowWorkersServerAZ":"us-east-1c"						
+			    }				
+		},
+		"Elasticache" : {
+			"Common" : {
+				"ElastiCacheNodeType" : "cache.m1.small",
+				"ElastiCacheEngineType" :  "redis"
+			},
+		
+			"Development" :
+				{ 											
+				"ElastiCacheSecurityGroup" : "sg-5c5ee133",
+				"NumberOfElastiCacheNodes" : 	"1",
+				"ElastiCacheSubnets" : "subnet-839074e2"
+				},
+			"QA" :
+				{ 							
+				"ElastiCacheSecurityGroup" : "sg-5c5ee133",
+				"NumberOfElastiCacheNodes" : 	"1"	,
+				"ElastiCacheSubnets" : "subnet-839074e2"
+				}				
+		}
+		
+  },
+
+  "Resources" : {  
+
+    "RestServerELB" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "SecurityGroups" : [{ "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerELBSecurityGroup" ] } ],
+        "Subnets" : [{ "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerELBSubnetId" ] } ],
+        "Listeners" : [ {
+          "LoadBalancerPort" : "80",
+          "InstancePort" : { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerInstancePort" ] } ,
+          "Protocol" : "HTTP"
+        } ],
+        "HealthCheck" : {
+          "Target" : { "Fn::Join" : [ "", ["HTTP:", { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerInstancePort" ] }, { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerApplicationPingPath" ] }]]},
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "25"
+        }
+      }
+    },
+    
+    "RestServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "RestServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerMaxSize" ] },
+		"LoadBalancerNames" : [ { "Ref" : "RestServerELB" } ],
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "RestServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"
+		}]		
+      }
+   },
+
+    "RestServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "RestServer", "Common", "RestServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "RestServer", { "Ref" : "EnvironmentType" }, "RestServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "RestServer", "Common", "RestServerInstanceType" ] }
+      }
+    },
+
+    "RestServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "RestServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "RestServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "RestServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "RestServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "RestServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "RestServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "RestServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "RestServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "RestServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+
+    "ImagingServerELB" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "SecurityGroups" : [{ "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerELBSecurityGroup" ] } ],
+        "Subnets" : [{ "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerELBSubnetId" ] } ],
+        "Listeners" : [ {
+          "LoadBalancerPort" : "80",
+          "InstancePort" : { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerInstancePort" ] } ,
+          "Protocol" : "HTTP"
+        } ],
+        "HealthCheck" : {
+          "Target" : { "Fn::Join" : [ "", ["HTTP:", { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerInstancePort" ] }, { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerApplicationPingPath" ] }]]},
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "25"
+        }
+      }
+    },
+	
+    "ImagingServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "ImagingServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerMaxSize" ] },
+		"LoadBalancerNames" : [ { "Ref" : "ImagingServerELB" } ],
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "ImagingServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"
+		}]		
+      }
+   },
+
+    "ImagingServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "ImagingServer", "Common", "ImagingServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "ImagingServer", { "Ref" : "EnvironmentType" }, "ImagingServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "ImagingServer", "Common", "ImagingServerInstanceType" ] }
+      }
+    },
+
+    "ImagingServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "ImagingServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "ImagingServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "ImagingServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "ImagingServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "ImagingServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "ImagingServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "ImagingServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "ImagingServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "ImagingServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },	
+	
+    "NotificationServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "NotificationServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerMaxSize" ] },
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "NotificationServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"		  
+		}]
+
+      }
+   },
+
+    "NotificationServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "NotificationServer", "Common", "NotificationServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "NotificationServer", { "Ref" : "EnvironmentType" }, "NotificationServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "NotificationServer", "Common", "NotificationServerInstanceType" ] }
+      }
+    },
+
+    "NotificationServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "NotificationServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "NotificationServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "NotificationServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "NotificationServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "NotificationServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "NotificationServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "NotificationServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "NotificationServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "NotificationServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFHighWorkersServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "SWFHighWorkersServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerMaxSize" ] },
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "SWFHighWorkersServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"
+		}]	
+      }
+   },
+
+    "SWFHighWorkersServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "SWFHighWorkersServer", "Common", "SWFHighWorkersServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "SWFHighWorkersServer", { "Ref" : "EnvironmentType" }, "SWFHighWorkersServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "SWFHighWorkersServer", "Common", "SWFHighWorkersServerInstanceType" ] }
+      }
+    },
+
+    "SWFHighWorkersServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFHighWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "SWFHighWorkersServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFHighWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "SWFHighWorkersServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "SWFHighWorkersServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFHighWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFHighWorkersServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "SWFHighWorkersServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFHighWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+
+    "SWFMediumWorkersServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "SWFMediumWorkersServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerMaxSize" ] },
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "SWFMediumWorkersServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"
+		}]	
+      }
+   },
+
+    "SWFMediumWorkersServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "SWFMediumWorkersServer", "Common", "SWFMediumWorkersServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "SWFMediumWorkersServer", { "Ref" : "EnvironmentType" }, "SWFMediumWorkersServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "SWFMediumWorkersServer", "Common", "SWFMediumWorkersServerInstanceType" ] }
+      }
+    },
+
+    "SWFMediumWorkersServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFMediumWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "SWFMediumWorkersServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFMediumWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "SWFMediumWorkersServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "SWFMediumWorkersServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFMediumWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFMediumWorkersServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "SWFMediumWorkersServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFMediumWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "SWFLowWorkersServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerAZ" ] }],
+		"VPCZoneIdentifier" : [{ "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerSubnetId" ] }],
+        "LaunchConfigurationName" : { "Ref" : "SWFLowWorkersServerLaunchConfig" },
+        "MinSize" : { "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerMinSize" ] },
+		"MaxSize" : { "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerMaxSize" ] },
+		"Tags" : [{
+		  "Key"   : "Name",
+		  "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "TagName"}, "SWFLowWorkersServerGroup" ] ]},
+		  "PropagateAtLaunch" : "true"
+		}]	
+      }
+   },
+
+    "SWFLowWorkersServerLaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerKeyName" ] },
+        "ImageId" : { "Fn::FindInMap" : [ "SWFLowWorkersServer", "Common", "SWFLowWorkersServerImageId" ] },      
+        "SecurityGroups" : [ { "Fn::FindInMap" : [ "SWFLowWorkersServer", { "Ref" : "EnvironmentType" }, "SWFLowWorkersServerSecurityGroups" ] }],
+        "InstanceType" : { "Fn::FindInMap" : [ "SWFLowWorkersServer", "Common", "SWFLowWorkersServerInstanceType" ] }
+      }
+    },
+
+    "SWFLowWorkersServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFLowWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "SWFLowWorkersServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "SWFLowWorkersServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "SWFLowWorkersServerCPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "SWFLowWorkersServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFLowWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "SWFLowWorkersServerCPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "SWFLowWorkersServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "SWFLowWorkersServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+
+    "ElastiCacheCluster" : {
+      "Type": "AWS::ElastiCache::CacheCluster",
+      "Properties": {
+        "CacheSubnetGroupName" : { "Ref" : "ElastiCacheSubnetGroup" },
+        "CacheNodeType"        : { "Fn::FindInMap" : [ "Elasticache", "Common", "ElastiCacheNodeType" ] },
+        "VpcSecurityGroupIds"  : [ { "Fn::FindInMap" : [ "Elasticache", { "Ref" : "EnvironmentType" }, "ElastiCacheSecurityGroup" ] } ],
+        "Engine"               : { "Fn::FindInMap" : [ "Elasticache", "Common", "ElastiCacheEngineType" ] },
+        "NumCacheNodes"        : { "Fn::FindInMap" : [ "Elasticache", { "Ref" : "EnvironmentType" }, "NumberOfElastiCacheNodes" ] }
+      }
+    },
+    "ElastiCacheSubnetGroup" : {
+      "Type" : "AWS::ElastiCache::SubnetGroup",
+      "Properties" : {
+        "Description" : "Subnets where the elastic cache nodes going to be launched",
+        "SubnetIds" : [{ "Fn::FindInMap" : [ "Elasticache", { "Ref" : "EnvironmentType" }, "ElastiCacheSubnets" ] }]
+      }
+    }
+	
+  },
+  "Outputs" : {
+    "RestAPIEndPoint" : {
+      "Description" : "URL of the rest api Environment",
+	  "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "RestServerELB", "DNSName" ]}]]}
+    },
+    "ImagingAPIEndPoint" : {
+      "Description" : "URL of the imaging api  Environment",
+      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ImagingServerELB", "DNSName" ]}]]}
+    }
+  }
+}
+
